@@ -22,6 +22,7 @@ engenius,esr600h|\
 hongdian,h8922-v30|\
 linksys,re7000|\
 meig,slt866|\
+qding,qc202|\
 sitecom,wlr-4100-v1-002|\
 zyxel,keenetic-lite-iii-a)
 	ubootenv_add_uci_config "/dev/mtd1" "0x0" "0x1000" "0x1000"
@@ -63,6 +64,7 @@ kroks,kndrt31r19|\
 mediatek,linkit-smart-7688|\
 samknows,whitebox-v8|\
 xiaomi,mi-router-4c|\
+xiaomi,miwifi-3a|\
 xiaomi,miwifi-nano|\
 zbtlink,zbt-wg2626|\
 zte,mf283plus)

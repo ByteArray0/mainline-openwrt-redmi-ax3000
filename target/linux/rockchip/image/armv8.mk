@@ -124,6 +124,22 @@ define Device/friendlyarm_nanopi-r6s
 endef
 TARGET_DEVICES += friendlyarm_nanopi-r6s
 
+define Device/linkease_easepi-r1
+  DEVICE_VENDOR := LinkEase
+  DEVICE_MODEL := EasePi R1
+  SOC := rk3568
+  DEVICE_PACKAGES := blkdiscard block-mount kmod-button-hotplug kmod-nvme kmod-r8169
+endef
+TARGET_DEVICES += linkease_easepi-r1
+
+define Device/lunzn_fastrhino-r66s
+  DEVICE_VENDOR := Lunzn
+  DEVICE_MODEL := FastRhino R66S
+  SOC := rk3568
+  DEVICE_PACKAGES := kmod-r8169
+endef
+TARGET_DEVICES += lunzn_fastrhino-r66s
+
 define Device/pine64_rock64
   DEVICE_VENDOR := Pine64
   DEVICE_MODEL := Rock64
@@ -183,6 +199,20 @@ define Device/radxa_rock-3c
 endef
 TARGET_DEVICES += radxa_rock-3c
 
+define Device/radxa_rock-4c-plus
+  DEVICE_VENDOR := Radxa
+  DEVICE_MODEL := ROCK 4C+
+  SOC := rk3399
+endef
+TARGET_DEVICES += radxa_rock-4c-plus
+
+define Device/radxa_rock-4se
+  DEVICE_VENDOR := Radxa
+  DEVICE_MODEL := ROCK 4SE
+  SOC := rk3399
+endef
+TARGET_DEVICES += radxa_rock-4se
+
 define Device/radxa_rock-5a
   DEVICE_VENDOR := Radxa
   DEVICE_MODEL := ROCK 5A
@@ -222,7 +252,7 @@ define Device/radxa_rock-pi-e-v3
   DEVICE_MODEL := ROCK Pi E v3.0
   SOC := rk3328
   DEVICE_DTS := rockchip/rk3328-rock-pi-e
-  DEVICE_PACKAGES := kmod-rtw88-8723du kmod-usb-net-cdc-ncm kmod-usb-net-rndis wpad-basic-mbedtls
+  DEVICE_PACKAGES := kmod-rtw88-8723du kmod-rtw88-8821cu kmod-usb-net-cdc-ncm kmod-usb-net-rndis wpad-basic-mbedtls
 endef
 TARGET_DEVICES += radxa_rock-pi-e-v3
 
