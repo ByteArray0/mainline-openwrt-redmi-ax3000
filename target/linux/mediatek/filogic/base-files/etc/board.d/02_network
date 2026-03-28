@@ -57,6 +57,7 @@ mediatek_setup_interfaces()
 	keenetic,kn-3811|\
 	netis,nx32u|\
 	qihoo,360t7|\
+	qihoo,360t7-hanwckfuboot|\
 	routerich,ax3000|\
 	routerich,ax3000-ubootmod|\
 	routerich,be7200|\
@@ -274,6 +275,11 @@ mediatek_setup_macs()
 		;;
 	qihoo,360t7)
 		lan_mac=$(mtd_get_mac_ascii factory lanMac)
+		wan_mac=$(macaddr_add "$lan_mac" 1)
+		label_mac=$wan_mac
+		;;
+	qihoo,360t7-hanwckfuboot)
+		lan_mac=$(cat /sys/class/net/eth0/address)
 		wan_mac=$(macaddr_add "$lan_mac" 1)
 		label_mac=$wan_mac
 		;;
