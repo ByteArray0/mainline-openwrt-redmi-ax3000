@@ -12,6 +12,7 @@ ramips_setup_interfaces()
 	asus,rt-ax53u|\
 	buffalo,wsr-2533dhpl2|\
 	buffalo,wsr-2533dhpls|\
+	cmcc,a9-cr660xlayout|\
 	confiabits,mt7621-v1|\
 	dlink,dir-x1860-b1|\
 	edup,ep-rt2960s|\

@@ -687,6 +687,22 @@ define Device/bolt_arion
 endef
 TARGET_DEVICES += bolt_arion
 
+define Device/cmcc_a9-cr660xlayout
+  $(Device/nand)
+  $(Device/uimage-lzma-loader)
+  DEVICE_VENDOR := CMCC
+  DEVICE_MODEL := A9
+  DEVICE_VARIANT := (cr660x's layout)
+  DEVICE_DTS := mt7621_cmcc_a9-cr660xlayout
+  DEVICE_DTS_DIR := ../dts
+  IMAGE_SIZE := 128512k
+  IMAGES += firmware.bin
+  IMAGE/firmware.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | \
+	check-size
+  DEVICE_PACKAGES += kmod-mt7915-firmware
+endef
+TARGET_DEVICES += cmcc_a9-cr660xlayout
+
 define Device/comfast_cf-e390ax
   $(Device/dsa-migration)
   $(Device/uimage-lzma-loader)
