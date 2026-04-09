@@ -84,6 +84,7 @@ rostelecom,rt-sf-1)
 	ubootenv_add_uci_config "/dev/mtd0" "0x80000" "0x1000" "0x20000"
 	;;
 beeline,smartbox-pro|\
+qihoo,360t6gs-cr660x-bl|\
 tplink,ec330-g5u-v1|\
 wifire,s1500-nbn)
 	ubootenv_add_mtd "u-boot-env" "0x0" "0x1000" "0x20000"
