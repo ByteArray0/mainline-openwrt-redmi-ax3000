@@ -30,7 +30,6 @@
 			gpios = <&tlmm 19 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_BLUE>;
 			function = LED_FUNCTION_STATUS;
-			default-state = "on";
 		};
 
 		led_system_yellow: led-1 {
@@ -48,7 +47,7 @@
 		led_internet_yellow: led-3 {
 			gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
 			color = <LED_COLOR_ID_YELLOW>;
-			function = LED_FUNCTION_WAN;
+			function = LED_FUNCTION_LAN;
 		};
 	};
 };
