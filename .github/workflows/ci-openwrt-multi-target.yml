@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - name: qualcommax-ipq50xx
+            target: qualcommax
+            subtarget: ipq50xx
+            base_config: |
+              CONFIG_TARGET_qualcommax=y
+              CONFIG_TARGET_qualcommax_ipq50xx=y
+              CONFIG_PACKAGE_luci=y
+              CONFIG_ALL_KMODS=y
+            devices:
+              - name: Xiaomi-CR880X-M81
+                config: xiaomi_cr880x-m81
+              - name: Xiaomi-CR880X-M79-V1
+                config: xiaomi_cr880x-m79-v1
+              - name: CMCC-RAX3000Q
+                config: cmcc_rax3000q
+
+          - name: ramips-mt7621
+            target: ramips
+            subtarget: mt7621
+            base_config: |
+              CONFIG_TARGET_ramips=y
+              CONFIG_TARGET_ramips_mt7621=y
+              CONFIG_PACKAGE_luci=y
+              CONFIG_ALL_KMODS=y
+            devices:
+              - name: CMCC-A9
+                config: cmcc_a9-cr660xlayout
+              - name: Qihoo-360T6GS
+                config: qihoo_360t6gs-cr660x-bl
+
+          - name: mediatek-filogic
+            target: mediatek
+            subtarget: filogic
+            base_config: |
+              CONFIG_TARGET_mediatek=y
+              CONFIG_TARGET_mediatek_filogic=y
+              CONFIG_PACKAGE_luci=y
+              CONFIG_ALL_KMODS=y
+            devices:
+              - name: Qihoo-360T7
+                config: qihoo_360t7-hanwckfuboot
+              - name: CMCC-MR3000D-CIq
+                config: cmcc_mr3000d-ciq-v2
+              - name: Newland NL-WR810
+                config: newland_nl-wr8103
+
+    steps:
+      - name: Free disk space
+        run: sudo rm -rf /usr/share/dotnet /usr/local/lib/android
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get -qq update -y
+          sudo apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential \
+            bzip2 ccache clang cmake cpio curl device-tree-compiler ecj fastjar flex gawk gettext gcc-multilib \
+            g++-multilib git gnutls-dev gperf haveged help2man intltool lib32gcc-s1 libc6-dev-i386 libelf-dev \
+            libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses-dev libpython3-dev \
+            libreadline-dev libssl-dev libtool libyaml-dev libz-dev lld llvm lrzsz mkisofs msmtp nano \
+            ninja-build p7zip p7zip-full patch pkgconf python3 python3-pip python3-ply python3-docutils \
+            python3-pyelftools qemu-utils re2c rsync scons squashfs-tools subversion swig texinfo uglifyjs \
+            upx-ucl unzip vim wget xmlto xxd zlib1g-dev zstd
+
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Update and install feeds
+        run: |
+          ./scripts/feeds update -a
+          ./scripts/feeds install -a
+
+      - name: Build devices
+        run: |
+          TARGET_DIR="bin/targets/${{ matrix.target.target }}/${{ matrix.target.subtarget }}"
+          FIRMWARE_DIR="collected-firmware"
+          mkdir -p "${FIRMWARE_DIR}"
+          DEVICES='${{ toJSON(matrix.target.devices) }}'
+          FIRST=true
+
+          echo "$DEVICES" | jq -c '.[]' | while read -r device; do
+            dev_name=$(echo "$device" | jq -r '.name')
+            dev_config=$(echo "$device" | jq -r '.config')
+            echo "==> Building device: $dev_name ($dev_config)"
+
+            cat <<EOF > .config
+          ${{ matrix.target.base_config }}
+          CONFIG_TARGET_${{ matrix.target.target }}_${{ matrix.target.subtarget }}_DEVICE_${dev_config}=y
+          EOF
+            make defconfig
+            make -j$(nproc) IGNORE_ERRORS=1
+
+            # 把本设备固件移到归档目录
+            find "${TARGET_DIR}" -maxdepth 1 -type f -name "openwrt-*" \
+              -exec mv {} "${FIRMWARE_DIR}/" \;
+
+            # 归档 per-device 元数据
+            mv "${TARGET_DIR}/config.buildinfo" "${FIRMWARE_DIR}/config-${dev_name}.buildinfo" 2>/dev/null || true
+            mv "${TARGET_DIR}/profiles.json"    "${FIRMWARE_DIR}/profiles-${dev_name}.json"    2>/dev/null || true
+            mv "${TARGET_DIR}/sha256sums"       "${FIRMWARE_DIR}/sha256sums-${dev_name}"       2>/dev/null || true
+
+            if [ "$FIRST" = "true" ]; then
+              tar -zcf "${FIRMWARE_DIR}/openwrt-${{ matrix.target.name }}-kmod-packages.tar.gz" \
+                -C "${TARGET_DIR}" packages/
+              cp "${TARGET_DIR}/feeds.buildinfo" "${FIRMWARE_DIR}/"
+              FIRST=false
+            fi
+          done
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: bin-${{ matrix.target.name }}
+          path: collected-firmware/*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: bin-*
+          merge-multiple: true
+          path: release/
+
+      - name: Merge sha256sums
+        run: |
+          cd release/
+          cat sha256sums-* | sort -u -k2 > sha256sums
+          rm sha256sums-*
+
+      - name: Generate release info
+        run: |
+          TIME="$(curl -sf "https://api.github.com/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}" | jq -r .created_at)"
+          TAG="ci-${GITHUB_REF_NAME}-$(date -d "${TIME}" -u +'%Y%m%d-%H%M%S-%Z')"
+          echo "TAG=$TAG" >> $GITHUB_ENV
+          echo "NAME=CI ${GITHUB_REF_NAME} $(date -d "${TIME}" -u +'%Y-%m-%d %H:%M:%S %Z')" >> $GITHUB_ENV
+
+          cat > Body.md <<EOF
+          Build time: \`$(date -d "${TIME}" -u +'%Y-%m-%d %H:%M:%S %Z')\`
+          Release version: \`${TAG}\`
+
+          ## Devices
+          - Redmi AX3000 M79 / M81
+          - CMCC RAX3000Q
+          - CMCC A9 (cr660x's layout)
+          - Qihoo 360T6GS (cr660x's bootloader)
+          - Qihoo 360T7 (hanwckf U-Boot)
+          - CMCC MR3000D-CIq v2 / Newland NL-WR8103 (hanwckf's U-Boot of nl-wr8103)
+          ## Sources
+          $(awk -F'[ ^]' '{printf "%s: `%s`\n", $2, $4}' release/feeds.buildinfo 2>/dev/null || echo '_unavailable_')
+
+          ## SHA256
+          $(awk '{printf "%s: `%s`\n", $2, $1}' release/sha256sums | sed 's/^\*//')
+          EOF
+
+      - name: Remove useless files
+        run: rm -f release/*-bl2.bin release/*-fip.bin release/*-preloader.bin
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: true
+          tag_name: ${{ env.TAG }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ env.NAME }}
+          body_path: Body.md
+          files: |
+            release/sha256sums
+            release/*.*
