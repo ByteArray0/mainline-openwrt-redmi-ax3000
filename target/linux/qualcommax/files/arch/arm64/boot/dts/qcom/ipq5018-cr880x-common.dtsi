@@ -12,9 +12,9 @@
 	aliases {
 		serial0 = &blsp1_uart1;
 		led-boot = &led_system_blue;
-		led-failsafe = &led_system_yellow;
-		led-running = &led_system_blue;
-		led-upgrade = &led_system_yellow;
+		led-failsafe = &led_system_blue;
+		led-running = &led_system_yellow;
+		led-upgrade = &led_system_blue;
 	};
 
 	chosen {
