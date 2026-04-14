@@ -77,6 +77,7 @@ ALLWIFIBOARDS:= \
 	qihoo_360v6 \
 	qnap_301w \
 	redmi_ax6 \
+	cmcc_rax3000q \
 	skspruce_wia3300-20 \
 	spectrum_sax1v1k \
 	tplink_deco-x80-5g \
@@ -261,6 +262,7 @@ $(eval $(call generate-ipq-wifi-package,qihoo_360v6,Qihoo 360V6))
 $(eval $(call generate-ipq-wifi-package,qnap_301w,QNAP 301w))
 $(eval $(call generate-ipq-wifi-package,prpl_haze,prpl Haze))
 $(eval $(call generate-ipq-wifi-package,redmi_ax6,Redmi AX6))
+$(eval $(call generate-ipq-wifi-package,cmcc_rax3000q,CMCC RAX3000Q))
 $(eval $(call generate-ipq-wifi-package,skspruce_wia3300-20,SKSpruce WIA3300-20))
 $(eval $(call generate-ipq-wifi-package,spectrum_sax1v1k,Spectrum SAX1V1K))
 $(eval $(call generate-ipq-wifi-package,tplink_deco-x80-5g,TP-Link Deco X80-5G))
