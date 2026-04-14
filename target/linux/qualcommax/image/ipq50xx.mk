@@ -18,6 +18,19 @@ define Build/mstc-header
 	rm -f $@.crclen
 endef
 
+define Device/cmcc_rax3000q
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := CMCC
+	DEVICE_MODEL := RAX3000Q
+	DEVICE_DTS_CONFIG := config@mp02.1
+	SOC := ipq5018
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_PACKAGES := kmod-ath11k-smallbuffers ath11k-firmware-ipq5018-qcn6122 ipq-wifi-cmcc_rax3000q
+endef
+TARGET_DEVICES += cmcc_rax3000q
+
 define Device/cmcc_pz-l8
 	$(call Device/FitImageLzma)
 	$(call Device/UbiFit)
