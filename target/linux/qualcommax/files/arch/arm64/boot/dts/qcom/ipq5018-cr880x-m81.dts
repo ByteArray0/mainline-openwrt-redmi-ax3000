@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+/dts-v1/;
+
+#include "ipq5018-cr880x.dtsi"
+
+/ {
+	model = "Redmi AX3000 / Xiaomi CR880X (M81)";
+	compatible = "xiaomi,cr880x-m81", "redmi,ax3000", "qcom,ipq5018";
+};
+
+&wifi {
+	qcom,ath11k-calibration-variant = "Xiaomi-CR880X-M81";
+};

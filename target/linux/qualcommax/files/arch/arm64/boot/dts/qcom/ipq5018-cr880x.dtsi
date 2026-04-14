@@ -1,0 +1,216 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+#include "ipq5018-cr880x-common.dtsi"
+
+/ {
+	keys {
+		compatible = "gpio-keys";
+		pinctrl-0 = <&button_pins>;
+		pinctrl-names = "default";
+
+		reset-button {
+			label = "reset";
+			gpios = <&tlmm 25 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_RESTART>;
+		};
+
+		wps-button {
+			label = "wps";
+			gpios = <&tlmm 23 GPIO_ACTIVE_LOW>;
+			linux,code = <KEY_WPS_BUTTON>;
+		};
+	};
+
+	leds {
+		compatible = "gpio-leds";
+		pinctrl-0 = <&led_pins>;
+		pinctrl-names = "default";
+
+		led_system_blue: led-0 {
+			gpios = <&tlmm 19 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_STATUS;
+		};
+
+		led_system_yellow: led-1 {
+			gpios = <&tlmm 17 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_YELLOW>;
+			function = LED_FUNCTION_STATUS;
+		};
+
+		led_internet_blue: led-2 {
+			gpios = <&tlmm 22 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_BLUE>;
+			function = LED_FUNCTION_WAN;
+		};
+
+		led_internet_yellow: led-3 {
+			gpios = <&tlmm 20 GPIO_ACTIVE_HIGH>;
+			color = <LED_COLOR_ID_YELLOW>;
+			function = LED_FUNCTION_LAN;
+		};
+	};
+};
+
+&switch {
+	status = "okay";
+
+	switch_mac_mode = <MAC_MODE_SGMII_CHANNEL0>;
+
+	qcom,port_phyinfo {
+		// MAC0 -> GE Phy --- MDI --- QCA8337 Phy4(Port5)
+		port@0 {
+			port_id = <1>;
+			mdiobus = <&mdio0>;
+			phy_address = <7>;
+		};
+
+		// MAC1 -> Uniphy --- SGMII --- QCA8337 SerDes(Port6)
+		port@1 {
+			port_id = <2>;
+			mdiobus = <&mdio1>;
+			forced-speed = <1000>;
+			forced-duplex = <1>;
+		};
+	};
+};
+
+// MAC1 -> SGMII
+&dp2 {
+	status = "okay";
+	nvmem-cells = <&mac_addr_dp 1>;
+	nvmem-cell-names = "mac-address";
+
+	fixed-link {
+		speed = <1000>;
+		full-duplex;
+	};
+};
+
+&mdio1 {
+	status = "okay";
+
+	pinctrl-0 = <&mdio1_pins>;
+	pinctrl-names = "default";
+	reset-gpios = <&tlmm 26 GPIO_ACTIVE_LOW>;
+
+	// QCA8337 Phy0 -> LAN1
+	qca8337_0: ethernet-phy@0 {
+		reg = <0>;
+	};
+
+	// QCA8337 Phy1 -> LAN2
+	qca8337_1: ethernet-phy@1 {
+		reg = <1>;
+	};
+
+	// QCA8337 Phy2 -> LAN3
+	qca8337_2: ethernet-phy@2 {
+		reg = <2>;
+	};
+
+	// QCA8337 Phy3 -> WAN
+	qca8337_3: ethernet-phy@3 {
+		reg = <3>;
+	};
+
+	// QCA8337 Phy4 -> IPQ5018 GE Phy
+	qca8337_4: ethernet-phy@4 {
+		reg = <4>;
+	};
+
+	// QCA8337 switch
+	switch1: ethernet-switch@17 {
+		compatible = "qca,qca8337";
+		reg = <17>;
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			// CPU port -> MAC1 via SGMII
+			port@0 {
+				reg = <0>;
+				phy-mode = "sgmii";
+				ethernet = <&dp2>;
+				qca,sgmii-enable-pll;
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+				};
+			};
+
+			port@1 {
+				reg = <1>;
+				label = "lan1";
+				phy-handle = <&qca8337_0>;
+			};
+
+			port@2 {
+				reg = <2>;
+				label = "lan2";
+				phy-handle = <&qca8337_1>;
+			};
+
+			port@3 {
+				reg = <3>;
+				label = "lan3";
+				phy-handle = <&qca8337_2>;
+			};
+
+			port@4 {
+				reg = <4>;
+				label = "wan";
+				phy-handle = <&qca8337_3>;
+			};
+
+			// Phy4 -> IPQ5018 GE Phy (CPU port via internal GMII)
+			port@5 {
+				reg = <5>;
+				phy-handle = <&qca8337_4>;
+				phy-mode = "gmii";
+				ethernet = <&dp1>;
+			};
+		};
+	};
+};
+
+&q6v5_wcss {
+	boot-args = </*       type:\t*/ 0x2 /* PCIE1\t*/
+		     /*     length:\t*/ 4
+		     /*     UPD ID:\t*/ 2
+		     /* reset GPIO:\t*/ 27
+		     /*   reserved:\t*/ 0 0>;
+};
+
+&wifi {
+	qcom,ath11k-calibration-variant = "Xiaomi-CR880X";
+};
+
+&tlmm {
+	button_pins: button-state {
+		button-pins {
+			pins = "gpio23", "gpio25";
+			function = "gpio";
+			drive-strength = <8>;
+			bias-pull-up;
+		};
+	};
+
+	led_pins: led-state {
+		pins = "gpio17", "gpio19", "gpio20", "gpio22";
+		function = "gpio";
+		drive-strength = <8>;
+		bias-pull-down;
+	};
+
+	serial_0_pins: uart0-state {
+		pins = "gpio28", "gpio29";
+		function = "blsp0_uart1";
+		drive-strength = <8>;
+		bias-disable;
+	};
+};
