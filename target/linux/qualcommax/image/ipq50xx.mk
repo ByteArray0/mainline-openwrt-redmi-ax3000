@@ -203,6 +203,26 @@ endif
 endef
 TARGET_DEVICES += xiaomi_ax6000
 
+define Device/xiaomi_cr880x-m81
+	$(call Device/FitImage)
+	$(call Device/UbiFit)
+	DEVICE_VENDOR := Xiaomi
+	DEVICE_MODEL := CR880X
+	DEVICE_VARIANT := M81
+	DEVICE_DTS_CONFIG := config@mp02.1
+	SOC := ipq5018
+	BLOCKSIZE := 128k
+	PAGESIZE := 2048
+	DEVICE_PACKAGES := kmod-ath11k-smallbuffers ath11k-firmware-ipq5018-qcn6122 ipq-wifi-xiaomi_cr880x
+endef
+TARGET_DEVICES += xiaomi_cr880x-m81
+
+define Device/xiaomi_cr880x-m79-v1
+	$(call Device/xiaomi_cr880x-m81)
+	DEVICE_VARIANT := M79 V1
+endef
+TARGET_DEVICES += xiaomi_cr880x-m79-v1
+
 define Device/yuncore_ax830
 	$(call Device/FitImage)
 	$(call Device/UbiFit)

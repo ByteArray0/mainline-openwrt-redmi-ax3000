@@ -37,6 +37,10 @@ xiaomi,ax6000)
 	ucidef_set_led_netdev "wan-port-link-top-blue" "WAN-PORT-LINK-TOP-BLUE" "blue:wan" "wan" "link_1000 link_2500"
 	ucidef_set_led_netdev "wan-port-link-top-yellow" "WAN-PORT-LINK-TOP-YELLOW" "yellow:wan" "wan" "link_10 link_100"
 	;;
+xiaomi,cr880x-m79-v1|\
+xiaomi,cr880x-m81)
+	ucidef_set_led_switch "wan" "WAN" "blue:internet" "wan" "tx rx link_10 link_100 link_1000"
+	;;
 esac
 
 board_config_flush
