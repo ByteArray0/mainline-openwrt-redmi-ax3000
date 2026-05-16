@@ -832,6 +832,18 @@ define U-Boot/mt7986_netcore_n60-pro
   DEPENDS:=+trusted-firmware-a-mt7986-spim-nand-ddr4
 endef
 
+define U-Boot/mt7981_newland_nl-wr8103
+  NAME:=Newland NL-WR8103
+  BUILD_SUBTARGET:=filogic
+  BUILD_DEVICES:=newland_nl-wr8103
+  UBOOT_CONFIG:=mt7981_newland_nl-wr8103
+  UBOOT_IMAGE:=u-boot.fip
+  BL2_BOOTDEV:=spim-nand
+  BL2_SOC:=mt7981
+  BL2_DDRTYPE:=ddr3
+  DEPENDS:=+trusted-firmware-a-mt7981-spim-nand-ddr3
+endef
+
 define U-Boot/mt7986_tplink_tl-xdr4288
   NAME:=TP-LINK TL-XDR4288
   BUILD_SUBTARGET:=filogic
@@ -1214,6 +1226,7 @@ UBOOT_TARGETS := \
 	mt7981_netis_nx30v2 \
 	mt7981_netis_nx31 \
 	mt7981_netis_nx32u \
+	mt7981_newland_nl-wr8103 \
 	mt7981_nokia_ea0326gmp \
 	mt7981_openwrt_one-snand \
 	mt7981_openwrt_one-nor \
