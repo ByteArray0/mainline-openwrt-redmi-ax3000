@@ -190,4 +190,9 @@ case "$board" in
 		[ "$PHYNBR" = "0" ] && macaddr_setbit_la "$hw_mac_addr" > /sys${DEVPATH}/macaddress
 		[ "$PHYNBR" = "1" ] && echo -n "$hw_mac_addr" > /sys${DEVPATH}/macaddress
 		;;
+	qihoo,360t6gs)
+		hw_mac_addr="$(mtd_get_mac_ascii factory lanMac)"
+		[ "$PHYNBR" = "0" ] && macaddr_add "$hw_mac_addr" 2 > /sys${DEVPATH}/macaddress
+		[ "$PHYNBR" = "1" ] && macaddr_add "$hw_mac_addr" 3 > /sys${DEVPATH}/macaddress
+		;;
 esac
