@@ -57,6 +57,7 @@ mediatek_setup_interfaces()
 	keenetic,kn-3711|\
 	keenetic,kn-3811|\
 	netis,nx32u|\
+	tplink,wma301-v2*|\
 	qihoo,360t7|\
 	qihoo,360t7-hanwckfuboot|\
 	routerich,ax3000|\
