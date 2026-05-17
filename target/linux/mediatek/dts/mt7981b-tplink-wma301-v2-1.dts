@@ -1,0 +1,25 @@
+// SPDX-License-Identifier: GPL-2.0-or-later OR MIT
+
+/dts-v1/;
+#include "mt7981b-tplink-wma301-v2-common.dtsi"
+
+/ {
+	model = "TP-Link WMA301 v2.1";
+	compatible = "tplink,wma301-v2-1", "mediatek,mt7981";
+
+	leds {
+		compatible = "gpio-leds";
+
+		led_status_red: red {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_RED>;
+			gpios = <&pio 12 GPIO_ACTIVE_LOW>;
+		};
+
+		led_status_green: green {
+			function = LED_FUNCTION_STATUS;
+			color = <LED_COLOR_ID_GREEN>;
+			gpios = <&pio 11 GPIO_ACTIVE_LOW>;
+		};
+	};
+};
